@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html>
-    <header>
-        <title>Stock Market Watcher</title>
-    </header>
-    <body>
-        <div id="stock-body">  
-            <h1 id="stock-heading">Stock Name Here</h1>
-            
-        </div>
-    </body>
-</html>
+<div id="stock-body">  
+    <h1 id="stock-heading">Stock Name Here</h1>
+    <button (click)="changeChartType()"> Switch to @if(type == 'bar') {Line} @else { Bar } Graph</button>
+</div>
+
+<div id="stock-canvas">
+    <canvas #myChart></canvas>
+</div>
