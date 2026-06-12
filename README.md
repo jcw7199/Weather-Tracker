@@ -1,2 +1,2 @@
-# Stock-Market-Watcher
-Angular web app used to track the stock market.
+# Weather Tracker
+Angular web app used to track weather patterns.
