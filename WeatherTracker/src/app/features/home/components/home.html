@@ -1,0 +1,23 @@
+
+<title>Weather Tracker</title>
+<div id="home-body">  
+    <h3 id="home-heading">Weather Tracker: {{ cityInput }}</h3>
+    <div id="city-search-form">
+    <label>Search for a city to begin: </label> 
+<input #cityInputRef id="cityInput" type="text" name="cityInput" 
+       autocomplete="off" 
+       (input)="updateSearch(cityInputRef.value)">    </div>
+
+    <div>
+        <h2>Results</h2>
+        <ul id="city-results-list">
+        @for(city of cities; track city.cityID)
+        {
+            <li>{{city.cityStr}}</li>
+        }
+        </ul>
+    </div>
+    
+
+
+</div>
