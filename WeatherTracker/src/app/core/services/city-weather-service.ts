@@ -15,11 +15,11 @@ export class CityWeatherService{
         
                 
     }   
-
+    private RESULT_SIZE: number = 100;
 
     public getCities(city: string): Observable<Object>{
         
-        var url = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=10&language=en&format=json`;
+        var url = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=${this.RESULT_SIZE}&language=en&format=json`;
         var data: Observable<Object>;
     
         data = this.http.get(url)

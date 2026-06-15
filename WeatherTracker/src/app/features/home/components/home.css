@@ -1,25 +1,42 @@
+* {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
 #home-body {
     text-align: center;
 }
 
-h1 {
-    font-size: 150px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
 h3 {
-    font-size: 100px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 10em;
 }
 
 #home-heading {
-    margin-top: 20vh;
+    margin-top: 15vh;
+    margin-bottom: 0 !important;
+}
+
+#city-display {
+    font-size: 2em;
 }
 
 #city-search-form *{
-    font-size: 50px;
+    font-size: 3em;
 }
 
-#city-results-list {
-    font-size: 35px;
-}
+ #city-page-form-div *{
+    font-size: 1.5em;
+    margin: 0.2em;
+ }
+
+ #city-page-form-div input {
+    width: 2em;
+ }
+
+ #city-results-list {
+    font-size: 2em;
+    margin-left: 2em;
+    display: block;
+ }
+
+  #city-results-list li:hover {
+    color: blue ;
+  }
