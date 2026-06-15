@@ -16,9 +16,10 @@
         @for(city of cities; track city.cityID)
         {
             <br>
-            <li value="{{city.cityID}}">{{city.cityStr}}</li>
-        }
+            <li value="{{city.cityID}}"><a [routerLink]="['/city', city.cityName]" [state]="{ city: city }">{{city.cityStr}}</a></li>
+        } 
         </ol>
+        <router-outlet />
     </div>
     <div id="city-page-form-div">
         <button (click)="getPreviousSearchResults()" [disabled]="prevButtonDisabled" class="my-index-button">Previous</button> <button (click)="getNextSearchResults()" [disabled]="nextButtonDisabled" class="my-index-button">Next</button>

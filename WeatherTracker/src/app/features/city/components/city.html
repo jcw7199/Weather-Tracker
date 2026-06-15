@@ -1,5 +1,6 @@
 <div id="city-body">  
-    <h1 id="city-heading"> {{cities[0]}} Name Here</h1>
+    <h3 id="city-heading"> {{cityName}}</h3>
+    <h1>{{cityObj?.cityCountry}}</h1>
     <button (click)="changeChartType()"> Switch to @if(type == 'bar') {Line} @else { Bar } Graph</button>
 </div>
 

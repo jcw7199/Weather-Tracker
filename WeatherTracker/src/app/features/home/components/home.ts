@@ -4,13 +4,13 @@ import { CityWeatherService } from '../../../core/services/city-weather-service'
 import { JsonPipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { ViewChild, ElementRef } from '@angular/core';
-
+import { RouterModule, RouterLink} from '@angular/router';
 @Component({
    selector: 'app-home',
    templateUrl: './home.html',
    styleUrl: './home.css',
    standalone: true,
-   imports: [FormsModule, JsonPipe]
+   imports: [FormsModule, JsonPipe, RouterModule, RouterLink]
 })
 
 
@@ -236,7 +236,8 @@ export class Home {
       }
    }
 }
-class MyCity {
+
+export class MyCity {
    public cityID: number = -1;
    public cityName: string = "";
    public cityCountry: string = "";
