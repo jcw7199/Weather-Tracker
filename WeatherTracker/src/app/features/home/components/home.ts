@@ -5,6 +5,8 @@ import { JsonPipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { ViewChild, ElementRef } from '@angular/core';
 import { RouterModule, RouterLink} from '@angular/router';
+import { MyCity } from '../../../core/services/city-weather-service';
+
 @Component({
    selector: 'app-home',
    templateUrl: './home.html',
@@ -237,12 +239,5 @@ export class Home {
    }
 }
 
-export class MyCity {
-   public cityID: number = -1;
-   public cityName: string = "";
-   public cityCountry: string = "";
-   public cityLatitude: number = -1;
-   public cityLongitude: number = -1;
-   public cityStr: string = "";
-}
+
 

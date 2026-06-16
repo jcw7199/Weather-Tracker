@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
+
 export class CityWeatherService{
     
     private http = inject(HttpClient);
@@ -27,4 +28,23 @@ export class CityWeatherService{
         return data;
 
     }
+
+    public getTodaysHourlyTemperature(city: MyCity, tempUnit: string)
+    {
+        var url = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=temperature_2m&timezone=auto&forecast_days=1&temperature_unit=${tempUnit}`;
+        var data: Observable<Object>;
+    
+        data = this.http.get(url)
+
+        return data;
+    }
+}
+
+export class MyCity {
+   public cityID: number = -1;
+   public cityName: string = "";
+   public cityCountry: string = "";
+   public cityLatitude: number = -1;
+   public cityLongitude: number = -1;
+   public cityStr: string = "";
 }
