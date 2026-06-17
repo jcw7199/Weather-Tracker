@@ -1,9 +1,12 @@
 <div id="city-body">  
     <h3 id="city-heading"> {{cityName}}</h3>
     <h1>{{cityObj?.cityCountry}}</h1>
+    <label> View Hourly Temperature. Pick Date: </label>
+    <input #startDatePicker type="date" (change)="getTodaysHourlyTemperature()">
     <select #chartTypeSelect name="chartTypeSelect" id="chart-type-select" (change)="changeChartType()">
             <option value="bar">Bar</option>
             <option value="line">Line</option>
+            <option value="scatter">Scatter</option> 
     </select>
 
 
@@ -11,9 +14,18 @@
             <option value="fahrenheit">Fahrenheit</option>
             <option value="celsius">Celsius</option>
     </select>
+    
+</div>
+<div>
+    <tr>
+    <button >View Today's Hourly Temperature</button>
+    </tr>
+    <br>
+    <tr>
+    <button>View Temperature For  </button>
+    </tr>
 </div>
 
-<button (click)="getTodaysHourlyTemperature()">View Today's Hourly Temperature</button>
 <div id="city-canvas">
     <canvas #myChart></canvas>
 </div>

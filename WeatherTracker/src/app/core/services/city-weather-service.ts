@@ -2,6 +2,7 @@ import {inject, Injectable, input} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { each } from 'chart.js/helpers';
 import { Observable } from 'rxjs';
+import { formatDate } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -29,14 +30,38 @@ export class CityWeatherService{
 
     }
 
-    public getTodaysHourlyTemperature(city: MyCity, tempUnit: string)
+    public getTodaysHourlyTemperature(city: MyCity, tempUnit: string, startDate: string, endDate: string)
     {
-        var url = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=temperature_2m&timezone=auto&forecast_days=1&temperature_unit=${tempUnit}`;
+        console.log(startDate)
+
+        var forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=temperature_2m&timezone=auto&start_date=${startDate}&end_date=${endDate}&temperature_unit=${tempUnit}`;
+
+        var archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=temperature_2m&timezone=auto&start_date=${startDate}&end_date=${endDate}&temperature_unit=${tempUnit}`;
         var data: Observable<Object>;
-    
-        data = this.http.get(url)
+        
+        const currentDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+        if (startDate <= currentDate)
+        {
+            data = this.http.get(archiveUrl);
+        }
+        else
+        {
+            data = this.http.get(forecastUrl);
+        }
 
         return data;
+    }
+
+    myFormatDate(date: Date)
+    {
+        var year = date.getFullYear();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        console.log(day)
+
+        console.log(`${year}-${month >= 10 ? `${month}` : `0${month}` }-${day >= 10 ? `${day}` : `0${day}`}`)
+        return `${year}-${month >= 10 ? month : `0${month}` }-${day >= 10 ? day : `0${day}`}`
     }
 }
 

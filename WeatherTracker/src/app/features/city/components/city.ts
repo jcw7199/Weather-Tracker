@@ -1,9 +1,9 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, Injectable, EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
-import { Chart, ChartData, registerables } from 'chart.js';
+import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 import { CityWeatherService } from '../../../core/services/city-weather-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MyCity } from '../../../core/services/city-weather-service';
-
+import { ChangeDetectorRef } from '@angular/core';
 Chart.register(...registerables)
 @Component({
   selector: 'app-city',
@@ -12,43 +12,43 @@ Chart.register(...registerables)
 })
 
 
-@Injectable({
-providedIn: 'root'
-})
 export class City implements AfterViewInit {
   @ViewChild('myChart', { static: false }) myChart!: ElementRef;
   @ViewChild('tempUnitSelect', { static: false }) tempUnit!: ElementRef;
   @ViewChild('chartTypeSelect', { static: false }) chartType!: ElementRef;
-  
+  @ViewChild('startDatePicker', { static: false }) startDatePicker!: ElementRef;
   private service = inject(CityWeatherService);
   private activatedRoute = inject(ActivatedRoute);
   private router = inject(Router);
   public cityName: string | null = "";
   public cityObj!: MyCity;
   public temperatureUnit: string = "";
-  
-  private chart!: Chart; 
+  private cdr = inject(ChangeDetectorRef);
+
+  private chart: Chart | null = null; 
   private chartData!: ChartData;
   private options = {
       scales: {
           y: {
             title: {
-          display: true,
-          align: 'center',
-          text: '',
-          color: 'black',
-          font: {
-            family: 'Arial',
-            size: 14,
-            weight: 'bold',
+              display: true,
+              align: 'center',
+              text: '',
+              color: 'black',
+              font: {
+                family: 'Arial',
+                size: 14,
+                weight: 'bold',
           },
+          
           padding: {
             top: 10,
             bottom: 5,
             left: 0,
             right: 0,
           },
-            }
+            },
+            beginAtZero: true
           },
           x: {
             title: 
@@ -70,8 +70,17 @@ export class City implements AfterViewInit {
               },
             }
           }
+      },
+      animations: {
+      tension: {
+        duration: 1000,
+        easing: 'linear',
+        from: 1,
+        to: 0,
+        loop: true
       }
     }
+  }
 
   ngOnInit(){
     console.log(this.cityObj)
@@ -88,25 +97,28 @@ export class City implements AfterViewInit {
   }
 
   ngAfterViewInit(){
+    //to get animations back, fix default date.
     this.getTodaysHourlyTemperature();
   }
 
 
   changeChartType(){
-    this.chart.destroy();       
-    
-    this.chart = new Chart(this.myChart.nativeElement, {
-      type: this.chartType.nativeElement.value,
-      data: this.chartData,
-      options: this.options
-    })
-    
+
+    if (this.chart)
+    {
+      var config: any = this.chart.config;
+      config.type = this.chartType.nativeElement.value;      
+      this.chart.update('active');
+    }
   }
 
   getTodaysHourlyTemperature(){
-    if(this.chart)
-      this.chart.destroy()
-    var tempData = this.service.getTodaysHourlyTemperature(this.cityObj, this.tempUnit.nativeElement.value);
+
+    console.log("START: ", this.startDatePicker.nativeElement.value)
+    var tempData = this.service.getTodaysHourlyTemperature(this.cityObj, 
+                                                          this.tempUnit.nativeElement.value, 
+                                                          this.startDatePicker.nativeElement.value, 
+                                                          this.startDatePicker.nativeElement.value);
     
     tempData.subscribe((temp: any) => {
     this.temperatureUnit = temp["hourly_units"]["temperature_2m"];
@@ -130,12 +142,22 @@ export class City implements AfterViewInit {
             }]
             }
     
-            
-    this.chart = new Chart(this.myChart.nativeElement, {
+    if(this.chart)
+    {
+      console.log("X: ", xAxisData);
+      console.log("Y: ", temp["hourly"]["temperature_2m"])
+      this.chart.data.labels = xAxisData;
+      this.chart.data.datasets[0].data = temp["hourly"]["temperature_2m"];
+      this.chart.update('active');
+    }
+    else{
+        this.chart = new Chart(this.myChart.nativeElement, {
         type: this.chartType.nativeElement.value,
         data: this.chartData,
         options: this.options
     })
+    }      
+    
     }
     )
 
