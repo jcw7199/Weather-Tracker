@@ -30,13 +30,13 @@ export class CityWeatherService{
 
     }
 
-    public async getTodaysHourlyTemperature(city: MyCity, tempUnit: string, date: string)
+    public async getHourlyWeather(city: MyCity, tempUnit: string, date: string, mode: string)
     {
         console.log(date)
 
-        var forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=temperature_2m&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${tempUnit}`;
+        var forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=${mode}&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${tempUnit}`;
 
-        var archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=temperature_2m&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${tempUnit}`;
+        var archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=${mode}&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${tempUnit}`;
         var data: Observable<Object>;
         
         const currentDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"

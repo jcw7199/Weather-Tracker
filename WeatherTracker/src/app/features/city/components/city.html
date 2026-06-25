@@ -1,9 +1,22 @@
 <div id="city-body">  
     <h3 id="city-heading"> {{cityName}}</h3>
     <h1>{{cityObj?.cityCountry}}</h1>
-    <label> View Hourly Temperature. Pick Date: </label>
+    <h5> View Temperature Trends.</h5>
+    
+    <label>Weather Variable: </label>
+    <select #weatherModeSelect (change)="changeWeatherMode()" [disabled]="!isChartLoading" >
+        <option value="temperature_2m">Temperature</option>
+        <option value="rain">Rainfall</option>
+        <option value="wind_speed_10m">Wind Speed</option>
+        <option value="snowfall">Snowfall</option>
+    </select>
+
+
+
+    <label> Start Date: </label>
     <input ngModel #startDatePicker type="date" (click)="(0)" [(ngModel)]="defaultDate">
-    <input #endDatePicker type="date" (change)="(0)" (input)="checkDates()">
+    <label> End Date: </label>
+    <input #endDatePicker type="date" (change)="(0)">
     
     
 
@@ -11,13 +24,14 @@
     {
         <p> Loading: {{ chartLoadPercentage }} %</p>
     }
+    <label> Chart Type: </label>
     <select #chartTypeSelect name="chartTypeSelect" id="chart-type-select" (change)="changeChartType()">
             <option value="bar">Bar</option>
             <option value="line">Line</option>
             <option value="scatter">Scatter</option> 
     </select>
 
-
+    <label> Temperature Unit: </label>
     <select #tempUnitSelect name="tempUnit" id="temp-unit-select" (change)="convertTemperatureUnit()" [disabled]="!isChartLoading">
             <option value="fahrenheit">Fahrenheit</option>
             <option value="celsius">Celsius</option>
@@ -25,12 +39,14 @@
     
 </div>
 <div>
+    <br>
+    <br>
     <tr>
-    <button (click)="getTodaysHourlyTemperature()" [disabled]="!isChartLoading" >View Hourly Temperature for {{startDatePicker.value}}</button>
+    <button (click)="getHourlyWeather()" [disabled]="!isChartLoading" >View Hourly {{weatherModeSelect.options[weatherModeSelect.selectedIndex].text}} for {{startDatePicker.value}}</button>
     </tr>
     <br>
     <tr>
-    <button (click)="getAverageTemperaturePerDay()" [disabled]="!isChartLoading">View Temperature For Date Range </button>
+    <button (click)="getAverageWeatherPerDay()" [disabled]="!isChartLoading">View {{weatherModeSelect.options[weatherModeSelect.selectedIndex].text}} For Date Range </button>
     </tr>
 </div>
 
