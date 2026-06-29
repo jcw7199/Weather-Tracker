@@ -7,6 +7,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ValidationErrors } from '@angular/forms';
 import { AbstractControl, FormControl, FormsModule, ValidatorFn } from '@angular/forms';
 import { RegularExpressionLiteral } from '@angular/compiler';
+import { map } from 'rxjs';
 Chart.register(...registerables)
 @Component({
   selector: 'app-city',
@@ -18,7 +19,7 @@ Chart.register(...registerables)
 
 export class City implements AfterViewInit {
   @ViewChild('myChart', { static: false }) myChart!: ElementRef;
-  @ViewChild('tempUnitSelect', { static: false }) tempUnit!: ElementRef;
+  @ViewChild('unitSelect', { static: false }) unitSelect!: ElementRef;
   @ViewChild('chartTypeSelect', { static: false }) chartType!: ElementRef;
   @ViewChild('startDatePicker', { static: false }) startDatePicker!: ElementRef;
   @ViewChild('startDatePicker', { static: false }) startDatePickerValidator!: ElementRef<HTMLInputElement>;
@@ -33,9 +34,17 @@ export class City implements AfterViewInit {
 
   public defaultDate = (new Date()).toISOString().split('T')[0];
   private weatherMode: string = "temperature_2m";
-  //public dateControl = new FormControl('validDates', [this.checkDates()])
+  private currentWeatherMode: string = this.weatherMode;
 
   public unit: string = "";
+  public unitsList: any[] = [];
+  public currrentUnit: string = this.unit;
+  private currentUnits: any = {
+    temperature: "celsius",
+    precipitation: "mm",
+    windSpeed: "kmh"
+  };
+
   private cdr = inject(ChangeDetectorRef);
   public differenceInDays: number = 0;
   public chartLoadPercentage: number = 0;
@@ -105,19 +114,20 @@ export class City implements AfterViewInit {
     
 
     this.cityObj = history.state?.['city'];
-      
+    this.changeUnits();
+  
 
     console.log("City: ", this.cityObj);
   
   }
 
   ngAfterViewInit(){
-    console.log("INIT", this.defaultDate)
+    console.log("After View INIT", this.defaultDate)
     this.getHourlyWeather();
   }
 
 
-  changeChartType(){
+  async changeChartType(){
 
     if (this.chart)
     {
@@ -127,7 +137,7 @@ export class City implements AfterViewInit {
     }
   }
 
-  resetChartData()
+  async resetChartData()
   {
     if(this.chartData)
     {
@@ -150,10 +160,35 @@ export class City implements AfterViewInit {
     }
   }
 
-  convertTemperatureUnit(){
-    console.log(this.tempUnit.nativeElement.value)
+  async convertUnit(){
+    
+    switch(this.currentWeatherMode)
+    {
+      case 'temperature_2m':
+        await this.convertTemperatureUnit();
+        break;
+      case 'rain':
+      case 'snowfall':
+        await this.convertPrecipitationUnit();
+        break;
+      case 'wind_speed_10m':
+        await this.convertWindSpeedUnit();
+        break;
+      default:
+        break;
+    }
+    this.currrentUnit = this.unitSelect.nativeElement.value
+    this.options.scales.y.title.text = `${this.weatherModeSelect.nativeElement.options[this.weatherModeSelect.nativeElement.selectedIndex].text} in ` + 
+                                       `${this.unitSelect.nativeElement.options[this.unitSelect.nativeElement.selectedIndex].text}`;
+
+    this.chart?.update('active');
+
+  }
+  
+  async convertTemperatureUnit(){
+    console.log(this.unitSelect.nativeElement.value)
     var arr: any = [];
-    if (this.tempUnit.nativeElement.value == "celsius")
+    if (this.unitSelect.nativeElement.value == "celsius")
     {
       this.chart?.data.datasets.forEach( (dataset) => {
         dataset.data.map((element: any) => {
@@ -162,6 +197,7 @@ export class City implements AfterViewInit {
         })
 
         dataset.data = arr;
+        arr = [];
       });
 
       console.log(arr)
@@ -175,16 +211,148 @@ export class City implements AfterViewInit {
         })
 
         dataset.data = arr;
+        arr = [];
       });
     }
-
     
+    this.currentUnits.temperature = this.unitSelect.nativeElement.value
     console.log(this.chart?.data.datasets[0].data)
     this.chart?.update('active');
   }
 
+  async convertPrecipitationUnit(){
   
-  checkDates() {
+    var arr: any = [];
+
+    if(this.unitSelect.nativeElement.value == 'mm')
+    {
+      //convert from inches to millimeters
+      this.chart?.data.datasets.forEach( (dataset) => {
+        dataset.data.map((element: any) => {
+          arr.push(element * 25.4);
+          console.log(element)
+        })
+
+        dataset.data = arr;
+        arr = [];
+      });
+    }
+    else
+    {
+      //convert from millimeters to inches.
+      this.chart?.data.datasets.forEach( (dataset) => {
+        dataset.data.map((element: any) => {
+          arr.push(element * 0.0393700787);
+          console.log(element)
+        })
+
+        dataset.data = arr;
+        arr = [];
+      });
+    }
+    this.currentUnits.precipitation = this.unitSelect.nativeElement.value
+
+    this.chart?.update('active');
+
+  }
+  
+  async convertWindSpeedUnit(){
+    var arr: any = [];
+    
+    this.chart?.data.datasets.forEach(dataset => {
+      dataset.data.forEach((element: any) => {
+        console.log("Wind: ", element)
+        switch(this.currrentUnit)
+        {
+          case "kmh":
+            switch (this.unitSelect.nativeElement.value)
+            {
+              //kilometers per hour to miles per hour
+              case "mph":
+                arr.push(element * 1.609344);
+                break;
+
+              //kilometers per hour to meters per second
+              case "ms":
+                arr.push(element * 3.6);
+                break;
+              
+              //kilometers per hour to knots
+              case "kn":
+                arr.push(element * 1.852);     
+                break;
+            }
+            break;
+
+          case "mph":
+            switch (this.unitSelect.nativeElement.value)
+            {
+              case "kmh":
+                arr.push(element * 0.6213711922); 
+                break;
+
+              case "ms":
+                arr.push(element * 2.2369362921); 
+                break;
+              case "kn":
+                arr.push(element * 1.150779448); 
+                break;
+            }
+            break;
+
+          case "ms":
+            switch (this.unitSelect.nativeElement.value)
+            {
+              case "mph":
+                arr.push(element * 0.44704); 
+                break;
+
+              case "kmh":
+                arr.push(element * 0.2777777778); 
+                break;
+
+              case "kn":
+                arr.push(element * 0.51444424416); 
+                break;
+            }
+            break;
+
+          case "kn":
+            switch (this.unitSelect.nativeElement.value)
+            {
+              case "mph":
+                arr.push(element * 0.868976); 
+                break;
+
+              case "ms":
+                arr.push(element * 1.9438444924574); 
+                break;
+
+              case "kmh":
+                arr.push(element * 0.5399568035); 
+                break;
+            }
+            break;
+
+          default:
+            break;
+        }
+      });
+
+      dataset.data = arr;
+      arr = [];
+    });
+    
+    this.currentUnits.windSpeed = this.unitSelect.nativeElement.value
+
+    this.chart?.update('active');
+    
+
+  }
+
+
+
+  async checkDates() {
     if(this.endDatePicker.nativeElement.value < this.startDatePicker.nativeElement.value)
     {
       var val = this.endDatePicker.nativeElement.value;
@@ -197,26 +365,56 @@ export class City implements AfterViewInit {
     
   }
 
-  changeWeatherMode(){
+  async changeWeatherMode(){
     this.weatherMode = this.weatherModeSelect.nativeElement.value;
 
     this.cdr.detectChanges();
+  }
+
+  async changeUnits(){
+    switch(this.currentWeatherMode)
+    {
+      case 'temperature_2m':
+        this.unitsList = [{label: "Celsius", value: "celsius"}, {label: "Fahrenheit", value: "fahrenheit"}]
+        break;
+      case 'rain':
+      case 'snowfall':
+        this.unitsList = [{label: "Millimeters", value: "mm"}, {label: "Inches", value: "inch"}]
+        break;
+      case 'wind_speed_10m':
+        this.unitsList = [
+          {label: "Kilometers Per Hour", value: "kmh"}, {label: "Meters per Second", value: "ms"},
+          {label: "Miles per Hour", value: "mph"}, {label: "Knots", value: "kn"}
+        ]
+        break;
+      default:
+        this.unitsList = [];
+        break;
+    }
+
+    if (this.unitsList.length > 0)
+    {
+      this.currrentUnit = this.unitsList[0].value;
+
+    }
+    
+    this.cdr.detectChanges();
+
   }
 
   async getHourlyWeather(){
 
     console.log("START: ", this.startDatePicker.nativeElement.value)
     var weatherData = this.service.getHourlyWeather(this.cityObj, 
-                                                          this.tempUnit.nativeElement.value, 
-                                                          this.startDatePicker.nativeElement.value, this.weatherMode);
+                                                    this.startDatePicker.nativeElement.value, 
+                                                    this.weatherMode, this.currentUnits);
     
     (await weatherData).subscribe((data: any) => {
     this.unit = data["hourly_units"][this.weatherMode];
     console.log(this.unit)
     var xAxisData = data["hourly"]["time"];
     var xAxisLabel = new Date(xAxisData[1]).toDateString();
-    var yAxisLabel = this.tempUnit.nativeElement.value;
-    yAxisLabel = yAxisLabel.charAt(0).toUpperCase() + yAxisLabel.slice(1);
+    var yAxisLabel = `${this.unitSelect.nativeElement.options[this.unitSelect.nativeElement.selectedIndex].text}`;
 
     
     this.options.scales.x.title.text = xAxisLabel;
@@ -253,7 +451,8 @@ export class City implements AfterViewInit {
     }
     )
 
-
+    this.currentWeatherMode = this.weatherMode;
+    this.changeUnits();
   }
 
   async getAverageWeatherPerDay(){
@@ -278,7 +477,7 @@ export class City implements AfterViewInit {
         const totalDays = this.differenceInDays;
     
         console.log('Number of days between the two dates:', this.differenceInDays);
-        this.resetChartData();
+        await this.resetChartData();
         
         this.options.scales.x.title.text = "Dates";
         this.options.scales.y.title.text = `Average ${this.weatherModeSelect.nativeElement.options[this.weatherModeSelect.nativeElement.selectedIndex].text}`;
@@ -289,9 +488,8 @@ export class City implements AfterViewInit {
         {
           this.chart?.data.labels?.push(start.toISOString().split('T')[0])
           await new Promise(r => setTimeout(r, 500));   
-          var tempData = this.service.getHourlyWeather(this.cityObj, 
-                                                            this.tempUnit.nativeElement.value, 
-                                                            start.toISOString().split('T')[0], this.weatherMode);
+          var tempData = this.service.getHourlyWeather(this.cityObj, start.toISOString().split('T')[0], 
+                                                       this.weatherMode, this.currentUnits);
           
           (await tempData).subscribe((temp: any) =>{
             console.log(temp["hourly"][this.weatherMode])
@@ -309,8 +507,10 @@ export class City implements AfterViewInit {
         this.differenceInDays = 0;
         this.chartLoadPercentage = 0;
         this.isChartLoading = true;
-        this.cdr.detectChanges();
-        
+
+        this.currentWeatherMode = this.weatherMode;
+
+        this.changeUnits();        
 
 
       }
@@ -334,5 +534,6 @@ export class City implements AfterViewInit {
         this.endDatePickerValidator.nativeElement.reportValidity();
       }
     }
+
   }
 }

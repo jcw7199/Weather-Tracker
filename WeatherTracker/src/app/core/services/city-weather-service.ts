@@ -30,20 +30,20 @@ export class CityWeatherService{
 
     }
 
-    public async getHourlyWeather(city: MyCity, tempUnit: string, date: string, mode: string)
+    public async getHourlyWeather(city: MyCity, date: string, mode: string, units: any)
     {
         console.log(date)
 
-        var forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=${mode}&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${tempUnit}`;
+        var forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=${mode}&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${units.temperature}&wind_speed_unit=${units.windSpeed}&precipitation_unit=${units.precipitation}`;
 
-        var archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=${mode}&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${tempUnit}`;
+        var archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${city.cityLatitude}&longitude=${city.cityLongitude}&hourly=${mode}&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=${units.temperature}&wind_speed_unit=${units.windSpeed}&precipitation_unit=${units.precipitation}`;
         var data: Observable<Object>;
         
         const currentDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
         
           
-        
-        if (date <= currentDate)
+        console.log("Archive url?  ", date < currentDate, " Selected: ", date, " Current: ", currentDate)
+        if (date < currentDate)
         {
             data = this.http.get(archiveUrl);
         }

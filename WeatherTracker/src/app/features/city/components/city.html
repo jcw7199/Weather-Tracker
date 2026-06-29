@@ -4,19 +4,25 @@
     <h5> View Temperature Trends.</h5>
     
     <label>Weather Variable: </label>
-    <select #weatherModeSelect (change)="changeWeatherMode()" [disabled]="!isChartLoading" >
+    <select #weatherModeSelect (change)="changeWeatherMode()" [disabled]="!isChartLoading" (change)="changeUnits()">
         <option value="temperature_2m">Temperature</option>
         <option value="rain">Rainfall</option>
         <option value="wind_speed_10m">Wind Speed</option>
         <option value="snowfall">Snowfall</option>
     </select>
 
-
+    <label> Unit: </label>
+    <select #unitSelect name="tempUnit" id="temp-unit-select" (change)="convertUnit()" [disabled]="!isChartLoading">
+            @for (unit of unitsList; track unit.value)
+            {
+                <option value="{{unit.value}}"> {{ unit.label }} </option>
+            }
+    </select>   
 
     <label> Start Date: </label>
-    <input ngModel #startDatePicker type="date" (click)="(0)" [(ngModel)]="defaultDate">
+    <input ngModel #startDatePicker type="date" (click)="(0)" [(ngModel)]="defaultDate" [disabled]="!isChartLoading">
     <label> End Date: </label>
-    <input #endDatePicker type="date" (change)="(0)">
+    <input #endDatePicker type="date" (change)="(0)" [disabled]="!isChartLoading">
     
     
 
@@ -31,11 +37,7 @@
             <option value="scatter">Scatter</option> 
     </select>
 
-    <label> Temperature Unit: </label>
-    <select #tempUnitSelect name="tempUnit" id="temp-unit-select" (change)="convertTemperatureUnit()" [disabled]="!isChartLoading">
-            <option value="fahrenheit">Fahrenheit</option>
-            <option value="celsius">Celsius</option>
-    </select>
+    
     
 </div>
 <div>
